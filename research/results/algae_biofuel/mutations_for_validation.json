@@ -1,0 +1,62 @@
+{
+  "wt_protein_length": 281,
+  "orf_start_bp": 319,
+  "mutations": [
+    {
+      "name": "dgat1_M163T",
+      "aa_position": 163,
+      "wt_aa": "M",
+      "mut_aa": "T",
+      "dna_position": 806,
+      "delta": 0.006333
+    },
+    {
+      "name": "dgat1_R113P",
+      "aa_position": 113,
+      "wt_aa": "R",
+      "mut_aa": "P",
+      "dna_position": 656,
+      "delta": 0.006278
+    },
+    {
+      "name": "dgat1_V153L",
+      "aa_position": 153,
+      "wt_aa": "V",
+      "mut_aa": "L",
+      "dna_position": 775,
+      "delta": 0.00581
+    },
+    {
+      "name": "dgat1_T148A",
+      "aa_position": 148,
+      "wt_aa": "T",
+      "mut_aa": "A",
+      "dna_position": 760,
+      "delta": 0.003704
+    },
+    {
+      "name": "dgat1_F120S",
+      "aa_position": 120,
+      "wt_aa": "F",
+      "mut_aa": "S",
+      "dna_position": 677,
+      "delta": 0.003531
+    },
+    {
+      "name": "dgat1_F168Y",
+      "aa_position": 168,
+      "wt_aa": "F",
+      "mut_aa": "Y",
+      "dna_position": 821,
+      "delta": 0.003144
+    },
+    {
+      "name": "dgat1_A149D",
+      "aa_position": 149,
+      "wt_aa": "A",
+      "mut_aa": "D",
+      "dna_position": 764,
+      "delta": 0.003117
+    }
+  ]
+}

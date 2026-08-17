@@ -1,0 +1,57 @@
+[
+  {
+    "name": "native_promoter",
+    "length": 501,
+    "score": -1.324485
+  },
+  {
+    "name": "generated_1",
+    "length": 500,
+    "score": -1.348704
+  },
+  {
+    "name": "generated_2",
+    "length": 500,
+    "score": -1.360635
+  },
+  {
+    "name": "generated_3",
+    "length": 500,
+    "score": -1.350205
+  },
+  {
+    "name": "generated_4",
+    "length": 500,
+    "score": -1.16983
+  },
+  {
+    "name": "generated_5",
+    "length": 500,
+    "score": -1.120933
+  },
+  {
+    "name": "generated_6",
+    "length": 500,
+    "score": -0.308165
+  },
+  {
+    "name": "generated_7",
+    "length": 500,
+    "score": -0.813193
+  },
+  {
+    "name": "generated_8",
+    "length": 500,
+    "score": -1.300793
+  },
+  {
+    "name": "generated_9",
+    "length": 500,
+    "score": -1.161292
+  },
+  {
+    "name": "generated_10",
+    "length": 500,
+    "score": -1.337688
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "name": "DGAT1",
+    "length": 1576,
+    "score": -1.188235
+  },
+  {
+    "name": "PDAT1",
+    "length": 576,
+    "score": -0.561609
+  },
+  {
+    "name": "ACCase",
+    "length": 1925,
+    "score": -0.961907
+  },
+  {
+    "name": "STA6",
+    "length": 1469,
+    "score": -1.096402
+  }
+]

@@ -1,0 +1,335 @@
+{
+  "wt_score": -0.718239426612854,
+  "fast_petase_score": -0.720982,
+  "scan_region": {
+    "start_bp": 87,
+    "end_bp": 780
+  },
+  "total_mutations_tested": 2079,
+  "total_beneficial": 106,
+  "novel_non_synonymous": [
+    {
+      "dna_position": 284,
+      "wt_base": "A",
+      "mut_base": "C",
+      "aa_position": 95,
+      "wt_aa": "K",
+      "mut_aa": "N",
+      "delta": 0.01383,
+      "mut_score": -0.70441,
+      "type": "non-synonymous"
+    },
+    {
+      "dna_position": 282,
+      "wt_base": "A",
+      "mut_base": "G",
+      "aa_position": 95,
+      "wt_aa": "K",
+      "mut_aa": "E",
+      "delta": 0.0123,
+      "mut_score": -0.70594,
+      "type": "non-synonymous"
+    },
+    {
+      "dna_position": 284,
+      "wt_base": "A",
+      "mut_base": "T",
+      "aa_position": 95,
+      "wt_aa": "K",
+      "mut_aa": "N",
+      "delta": 0.008243,
+      "mut_score": -0.709996,
+      "type": "non-synonymous"
+    },
+    {
+      "dna_position": 282,
+      "wt_base": "A",
+      "mut_base": "C",
+      "aa_position": 95,
+      "wt_aa": "K",
+      "mut_aa": "Q",
+      "delta": 0.007338,
+      "mut_score": -0.710901,
+      "type": "non-synonymous"
+    },
+    {
+      "dna_position": 163,
+      "wt_base": "T",
+      "mut_base": "C",
+      "aa_position": 55,
+      "wt_aa": "F",
+      "mut_aa": "S",
+      "delta": 0.006687,
+      "mut_score": -0.711552,
+      "type": "non-synonymous"
+    },
+    {
+      "dna_position": 379,
+      "wt_base": "A",
+      "mut_base": "T",
+      "aa_position": 127,
+      "wt_aa": "Q",
+      "mut_aa": "L",
+      "delta": 0.006295,
+      "mut_score": -0.711944,
+      "type": "non-synonymous"
+    },
+    {
+      "dna_position": 250,
+      "wt_base": "T",
+      "mut_base": "C",
+      "aa_position": 84,
+      "wt_aa": "V",
+      "mut_aa": "A",
+      "delta": 0.006227,
+      "mut_score": -0.712012,
+      "type": "non-synonymous"
+    },
+    {
+      "dna_position": 171,
+      "wt_base": "A",
+      "mut_base": "G",
+      "aa_position": 58,
+      "wt_aa": "S",
+      "mut_aa": "G",
+      "delta": 0.006051,
+      "mut_score": -0.712188,
+      "type": "non-synonymous"
+    },
+    {
+      "dna_position": 651,
+      "wt_base": "A",
+      "mut_base": "T",
+      "aa_position": 218,
+      "wt_aa": "I",
+      "mut_aa": "F",
+      "delta": 0.005817,
+      "mut_score": -0.712422,
+      "type": "non-synonymous"
+    },
+    {
+      "dna_position": 640,
+      "wt_base": "C",
+      "mut_base": "A",
+      "aa_position": 214,
+      "wt_aa": "S",
+      "mut_aa": "Y",
+      "delta": 0.005645,
+      "mut_score": -0.712594,
+      "type": "non-synonymous"
+    },
+    {
+      "dna_position": 150,
+      "wt_base": "A",
+      "mut_base": "G",
+      "aa_position": 51,
+      "wt_aa": "T",
+      "mut_aa": "A",
+      "delta": 0.004679,
+      "mut_score": -0.71356,
+      "type": "non-synonymous"
+    },
+    {
+      "dna_position": 712,
+      "wt_base": "C",
+      "mut_base": "T",
+      "aa_position": 238,
+      "wt_aa": "S",
+      "mut_aa": "F",
+      "delta": 0.004676,
+      "mut_score": -0.713563,
+      "type": "non-synonymous"
+    },
+    {
+      "dna_position": 131,
+      "wt_base": "A",
+      "mut_base": "C",
+      "aa_position": 44,
+      "wt_aa": "E",
+      "mut_aa": "D",
+      "delta": 0.004535,
+      "mut_score": -0.713705,
+      "type": "non-synonymous"
+    },
+    {
+      "dna_position": 712,
+      "wt_base": "C",
+      "mut_base": "A",
+      "aa_position": 238,
+      "wt_aa": "S",
+      "mut_aa": "Y",
+      "delta": 0.004429,
+      "mut_score": -0.713811,
+      "type": "non-synonymous"
+    },
+    {
+      "dna_position": 398,
+      "wt_base": "G",
+      "mut_base": "T",
+      "aa_position": 133,
+      "wt_aa": "Q",
+      "mut_aa": "H",
+      "delta": 0.003993,
+      "mut_score": -0.714246,
+      "type": "non-synonymous"
+    }
+  ],
+  "novel_synonymous": [
+    {
+      "dna_position": 125,
+      "wt_base": "A",
+      "mut_base": "G",
+      "aa_position": 42,
+      "wt_aa": "S",
+      "mut_aa": "S",
+      "delta": 0.008411,
+      "mut_score": -0.709828,
+      "type": "synonymous"
+    },
+    {
+      "dna_position": 116,
+      "wt_base": "A",
+      "mut_base": "C",
+      "aa_position": 39,
+      "wt_aa": "T",
+      "mut_aa": "T",
+      "delta": 0.007558,
+      "mut_score": -0.710681,
+      "type": "synonymous"
+    },
+    {
+      "dna_position": 116,
+      "wt_base": "A",
+      "mut_base": "G",
+      "aa_position": 39,
+      "wt_aa": "T",
+      "mut_aa": "T",
+      "delta": 0.005962,
+      "mut_score": -0.712278,
+      "type": "synonymous"
+    },
+    {
+      "dna_position": 125,
+      "wt_base": "A",
+      "mut_base": "C",
+      "aa_position": 42,
+      "wt_aa": "S",
+      "mut_aa": "S",
+      "delta": 0.004816,
+      "mut_score": -0.713423,
+      "type": "synonymous"
+    },
+    {
+      "dna_position": 674,
+      "wt_base": "T",
+      "mut_base": "C",
+      "aa_position": 225,
+      "wt_aa": "N",
+      "mut_aa": "N",
+      "delta": 0.004661,
+      "mut_score": -0.713579,
+      "type": "synonymous"
+    },
+    {
+      "dna_position": 488,
+      "wt_base": "T",
+      "mut_base": "C",
+      "aa_position": 163,
+      "wt_aa": "G",
+      "mut_aa": "G",
+      "delta": 0.004047,
+      "mut_score": -0.714193,
+      "type": "synonymous"
+    },
+    {
+      "dna_position": 128,
+      "wt_base": "C",
+      "mut_base": "G",
+      "aa_position": 43,
+      "wt_aa": "L",
+      "mut_aa": "L",
+      "delta": 0.003937,
+      "mut_score": -0.714303,
+      "type": "synonymous"
+    },
+    {
+      "dna_position": 212,
+      "wt_base": "C",
+      "mut_base": "G",
+      "aa_position": 71,
+      "wt_aa": "P",
+      "mut_aa": "P",
+      "delta": 0.003901,
+      "mut_score": -0.714339,
+      "type": "synonymous"
+    },
+    {
+      "dna_position": 701,
+      "wt_base": "T",
+      "mut_base": "C",
+      "aa_position": 234,
+      "wt_aa": "G",
+      "mut_aa": "G",
+      "delta": 0.003464,
+      "mut_score": -0.714775,
+      "type": "synonymous"
+    },
+    {
+      "dna_position": 116,
+      "wt_base": "A",
+      "mut_base": "T",
+      "aa_position": 39,
+      "wt_aa": "T",
+      "mut_aa": "T",
+      "delta": 0.00315,
+      "mut_score": -0.715089,
+      "type": "synonymous"
+    }
+  ],
+  "fast_petase_overlap": [
+    {
+      "dna_position": 669,
+      "wt_base": "C",
+      "mut_base": "G",
+      "aa_position": 224,
+      "wt_aa": "R",
+      "mut_aa": "G",
+      "delta": 0.005911,
+      "mut_score": -0.712329,
+      "type": "non-synonymous"
+    },
+    {
+      "dna_position": 360,
+      "wt_base": "T",
+      "mut_base": "G",
+      "aa_position": 121,
+      "wt_aa": "S",
+      "mut_aa": "A",
+      "delta": 0.003687,
+      "mut_score": -0.714553,
+      "type": "non-synonymous"
+    },
+    {
+      "dna_position": 360,
+      "wt_base": "T",
+      "mut_base": "C",
+      "aa_position": 121,
+      "wt_aa": "S",
+      "mut_aa": "P",
+      "delta": 0.003528,
+      "mut_score": -0.714712,
+      "type": "non-synonymous"
+    },
+    {
+      "dna_position": 669,
+      "wt_base": "C",
+      "mut_base": "A",
+      "aa_position": 224,
+      "wt_aa": "R",
+      "mut_aa": "S",
+      "delta": 0.003323,
+      "mut_score": -0.714917,
+      "type": "non-synonymous"
+    }
+  ]
+}

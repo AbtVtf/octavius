@@ -1,0 +1,30 @@
+
+/browser-data
+/software/control-panel/.venv
+/software/sesame-rl/.venv
+.pio/
+__pycache__/
+
+# watcher-build (main firmware)
+/firmware/watcher-build/app/.venv
+/firmware/watcher-build/app/managed_components
+/firmware/watcher-build/components
+
+# watcher-face (legacy, build artifacts)
+/firmware/watcher-face/build
+/firmware/watcher-face/managed_components
+/firmware/watcher-face/main/
+/firmware/watcher-face/dependencies.lock
+/firmware/watcher-face/sdkconfig
+/firmware/watcher-face/sdkconfig.old
+
+# ESP-IDF / PlatformIO
+**/sdkconfig.esp32-s3-devkitc-1
+
+# Models (large binary files)
+/software/control-panel/models/
+/software/control-panel/personality_state.json
+/software/control-panel/memory_state.json
+
+# Misc
+/ssh.service

@@ -1,0 +1,22 @@
+[
+  {
+    "name": "nnHispS_yeast_opt",
+    "length": 5034,
+    "score": -0.848452
+  },
+  {
+    "name": "nnH3H_yeast_opt",
+    "length": 1266,
+    "score": -0.854765
+  },
+  {
+    "name": "nnLuz_yeast_opt",
+    "length": 801,
+    "score": -1.12021
+  },
+  {
+    "name": "nnCPH_yeast_opt",
+    "length": 867,
+    "score": -0.887026
+  }
+]

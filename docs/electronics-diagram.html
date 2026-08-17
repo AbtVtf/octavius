@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sesame 1.8x - Electronics Diagram (ESP32 + 4S)</title>
+  <link rel="stylesheet" href="https://unpkg.com/reactflow@11.11.4/dist/style.css" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #0a0a0f; }
+    #root { width: 100vw; height: 100vh; }
+    .react-flow__controls button {
+      background: #1e1e2e !important;
+      color: #9ca3af !important;
+      border-color: #2e2e3e !important;
+      fill: #9ca3af !important;
+    }
+    .react-flow__controls button:hover { background: #2e2e3e !important; }
+    .react-flow__attribution { display: none; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/reactflow@11.11.4/dist/umd/index.js"></script>
+
+  <script>
+    var h = React.createElement;
+    var RF = window.ReactFlow;
+    var ReactFlowComponent = RF.default;
+    var Position = RF.Position;
+    var Handle = RF.Handle;
+    var MarkerType = RF.MarkerType;
+    var useNodesState = RF.useNodesState;
+    var useEdgesState = RF.useEdgesState;
+    var Background = RF.Background;
+    var Controls = RF.Controls;
+
+    // ── Colors ──
+    var C = {
+      battery:    { bg: '#111827', border: '#3b82f6', text: '#93c5fd' },
+      bms:        { bg: '#1a1a2e', border: '#6366f1', text: '#a5b4fc' },
+      charge:     { bg: '#0c1929', border: '#0ea5e9', text: '#7dd3fc' },
+      switch:     { bg: '#1a1025', border: '#a855f7', text: '#d8b4fe' },
+      buck:       { bg: '#0f1f0f', border: '#22c55e', text: '#86efac' },
+      cap:        { bg: '#0f1f1f', border: '#14b8a6', text: '#5eead4' },
+      mcu:        { bg: '#1f1010', border: '#ef4444', text: '#fca5a5' },
+      servo:      { bg: '#1f1a0a', border: '#f59e0b', text: '#fcd34d' },
+      peripheral: { bg: '#1f0a1f', border: '#ec4899', text: '#f9a8d4' },
+      gnd:        { bg: '#111111', border: '#525252', text: '#a3a3a3' },
+      legend:     { bg: '#0f0f1a', border: '#4f46e5', text: '#c7d2fe' },
+    };
+
+    // ── Custom Node ──
+    function ElectronicsNode(props) {
+      var data = props.data;
+      var c = C[data.color] || C.peripheral;
+
+      var handleColor = function(ht) {
+        if (ht === 'power') return '#ef4444';
+        if (ht === 'signal') return '#3b82f6';
+        return '#737373'; // gnd
+      };
+
+      var children = [];
+
+      // Render handles
+      var handles = data.handles || [];
+      for (var i = 0; i < handles.length; i++) {
+        var hn = handles[i];
+        children.push(h(Handle, {
+          key: hn.id,
+          type: hn.type,
+          position: Position[hn.position],
+          id: hn.id,
+          style: Object.assign({
+            background: handleColor(hn.htype),
+            width: hn.htype === 'gnd' ? 8 : 10,
+            height: hn.htype === 'gnd' ? 8 : 10,
+            border: '2px solid #0a0a0f',
+          }, hn.style || {}),
+        }));
+      }
+
+      // Icon + label
+      children.push(h('div', {
+        key: 'header',
+        style: { display: 'flex', alignItems: 'center', gap: '8px', marginBottom: (data.sublabel || data.specs) ? '5px' : 0 },
+      },
+        data.icon ? h('span', { style: { fontSize: '16px' } }, data.icon) : null,
+        h('span', { style: { fontWeight: 700, fontSize: '12px', color: c.text } }, data.label)
+      ));
+
+      // Sublabel
+      if (data.sublabel) {
+        children.push(h('div', {
+          key: 'sub',
+          style: { fontSize: '10px', color: c.text + '99', marginBottom: data.specs ? '5px' : 0, fontWeight: 500 },
+        }, data.sublabel));
+      }
+
+      // Specs
+      if (data.specs) {
+        var specItems = [];
+        for (var j = 0; j < data.specs.length; j++) {
+          specItems.push(h('div', {
+            key: 's' + j,
+            style: {
+              fontSize: '9px', color: '#9ca3af', fontFamily: 'monospace',
+              background: 'rgba(255,255,255,0.04)', padding: '2px 6px', borderRadius: '3px',
+            },
+          }, data.specs[j]));
+        }
+        children.push(h('div', {
+          key: 'specs',
+          style: { display: 'flex', flexDirection: 'column', gap: '2px' },
+        }, specItems));
+      }
+
+      return h('div', {
+        style: {
+          background: c.bg,
+          border: '2px solid ' + c.border,
+          borderRadius: '10px',
+          padding: '10px 14px',
+          minWidth: data.wide ? '190px' : '145px',
+          boxShadow: '0 0 15px ' + c.border + '22, 0 2px 8px rgba(0,0,0,0.5)',
+        },
+      }, children);
+    }
+
+    var nodeTypes = { e: ElectronicsNode };
+
+    // ════════════════════════════════════════
+    //  NODES
+    // ════════════════════════════════════════
+
+    var Y_BAT = 0;
+    var Y_BMS = 40;
+    var Y_MID = 60;
+    var Y_GND = 520;
+
+    var nodes = [
+
+      // ───── BATTERIES ─────
+      { id: 'c1', type: 'e', position: { x: 0, y: 0 }, data: {
+        label: 'Cell 1', sublabel: 'Samsung 35E (Top-L)', icon: '\uD83D\uDD0B',
+        specs: ['3.7V \u2022 3500mAh \u2022 50g', 'INR18650-35E'],
+        color: 'battery',
+        handles: [
+          { type: 'source', position: 'Right', id: 'v+', htype: 'power' },
+          { type: 'source', position: 'Bottom', id: 'gnd', htype: 'gnd' },
+        ],
+      }},
+      { id: 'c2', type: 'e', position: { x: 230, y: 0 }, data: {
+        label: 'Cell 2', sublabel: 'Samsung 35E (Top-R)', icon: '\uD83D\uDD0B',
+        specs: ['3.7V \u2022 3500mAh \u2022 50g', 'Series with Cell 1'],
+        color: 'battery',
+        handles: [
+          { type: 'target', position: 'Left', id: 'v-in', htype: 'power' },
+          { type: 'source', position: 'Right', id: 'v+', htype: 'power' },
+          { type: 'source', position: 'Bottom', id: 'gnd', htype: 'gnd' },
+        ],
+      }},
+      { id: 'c3', type: 'e', position: { x: 0, y: 130 }, data: {
+        label: 'Cell 3', sublabel: 'Samsung 35E (Bot-L)', icon: '\uD83D\uDD0B',
+        specs: ['3.7V \u2022 3500mAh \u2022 50g', 'INR18650-35E'],
+        color: 'battery',
+        handles: [
+          { type: 'source', position: 'Right', id: 'v+', htype: 'power' },
+          { type: 'source', position: 'Bottom', id: 'gnd', htype: 'gnd' },
+        ],
+      }},
+      { id: 'c4', type: 'e', position: { x: 230, y: 130 }, data: {
+        label: 'Cell 4', sublabel: 'Samsung 35E (Bot-R)', icon: '\uD83D\uDD0B',
+        specs: ['3.7V \u2022 3500mAh \u2022 50g', 'Series with Cell 3'],
+        color: 'battery',
+        handles: [
+          { type: 'target', position: 'Left', id: 'v-in', htype: 'power' },
+          { type: 'source', position: 'Right', id: 'v+', htype: 'power' },
+          { type: 'source', position: 'Bottom', id: 'gnd', htype: 'gnd' },
+        ],
+      }},
+
+      // ───── USB-C CHARGER ─────
+      { id: 'usbc', type: 'e', position: { x: 520, y: -120 }, data: {
+        label: 'USB-C Port', sublabel: '4S Li-ion Charger Module', icon: '\uD83D\uDD0C',
+        specs: ['16.8V CC/CV charge', 'e.g. HX-4S-A01 module', 'Any 20V PD adapter'],
+        color: 'charge', wide: true,
+        handles: [
+          { type: 'source', position: 'Bottom', id: 'v+', htype: 'power' },
+          { type: 'source', position: 'Bottom', id: 'gnd', htype: 'gnd', style: { left: '75%' } },
+        ],
+      }},
+
+      // ───── 4S BMS ─────
+      { id: 'bms', type: 'e', position: { x: 520, y: 40 }, data: {
+        label: '4S BMS', sublabel: 'Battery Management System', icon: '\uD83D\uDEE1\uFE0F',
+        specs: ['Balances 4 cells', '16.8V charge cutoff', '8A cont. discharge', 'OVP / UVP / OCP'],
+        color: 'bms', wide: true,
+        handles: [
+          { type: 'target', position: 'Left', id: 'bat-a', htype: 'power', style: { top: '30%' } },
+          { type: 'target', position: 'Left', id: 'bat-b', htype: 'power', style: { top: '60%' } },
+          { type: 'target', position: 'Left', id: 'bat-gnd', htype: 'gnd', style: { top: '85%' } },
+          { type: 'target', position: 'Top', id: 'chrg-in', htype: 'power', style: { left: '35%' } },
+          { type: 'target', position: 'Top', id: 'chrg-gnd', htype: 'gnd', style: { left: '65%' } },
+          { type: 'source', position: 'Right', id: 'out+', htype: 'power', style: { top: '35%' } },
+          { type: 'source', position: 'Right', id: 'out-', htype: 'gnd', style: { top: '65%' } },
+        ],
+      }},
+
+      // ───── DPST SWITCH ─────
+      { id: 'sw', type: 'e', position: { x: 810, y: 40 }, data: {
+        label: 'DPST Switch', sublabel: 'KCD1 4-pin Rocker', icon: '\u23FB',
+        specs: ['Pole 1: V+ \u2192 6V buck', 'Pole 2: V+ \u2192 5V buck', 'GND passes through'],
+        color: 'switch', wide: true,
+        handles: [
+          { type: 'target', position: 'Left', id: 'in+', htype: 'power', style: { top: '30%' } },
+          { type: 'target', position: 'Left', id: 'in-', htype: 'gnd', style: { top: '70%' } },
+          { type: 'source', position: 'Right', id: 'p1', htype: 'power', style: { top: '25%' } },
+          { type: 'source', position: 'Right', id: 'p2', htype: 'power', style: { top: '50%' } },
+          { type: 'source', position: 'Right', id: 'gnd-out', htype: 'gnd', style: { top: '75%' } },
+        ],
+      }},
+
+      // ───── 6V BUCK (SERVOS) ─────
+      { id: 'buck6', type: 'e', position: { x: 1100, y: -30 }, data: {
+        label: '6V / 10A Buck', sublabel: 'Servo Power Supply', icon: '\u26A1',
+        specs: ['VIN: 14.8V from switch', 'VOUT: 6.0V regulated', '10A continuous', '~87% efficiency'],
+        color: 'buck', wide: true,
+        handles: [
+          { type: 'target', position: 'Left', id: 'vin', htype: 'power' },
+          { type: 'target', position: 'Bottom', id: 'gnd-in', htype: 'gnd', style: { left: '25%' } },
+          { type: 'source', position: 'Right', id: 'vout', htype: 'power', style: { top: '35%' } },
+          { type: 'source', position: 'Right', id: 'gnd-out', htype: 'gnd', style: { top: '70%' } },
+        ],
+      }},
+
+      // ───── 5V BUCK (ESP) ─────
+      { id: 'buck5', type: 'e', position: { x: 1100, y: 170 }, data: {
+        label: '5V / 1A Buck', sublabel: 'ESP32 Power Supply', icon: '\u26A1',
+        specs: ['VIN: 14.8V from switch', 'VOUT: 5.0V regulated', '1A (ESP draws ~200mA)', 'e.g. MP1584 mini module'],
+        color: 'buck', wide: true,
+        handles: [
+          { type: 'target', position: 'Left', id: 'vin', htype: 'power' },
+          { type: 'target', position: 'Bottom', id: 'gnd-in', htype: 'gnd', style: { left: '25%' } },
+          { type: 'source', position: 'Right', id: 'vout', htype: 'power', style: { top: '35%' } },
+          { type: 'source', position: 'Right', id: 'gnd-out', htype: 'gnd', style: { top: '70%' } },
+        ],
+      }},
+
+      // ───── BULK CAP (servo rail) ─────
+      { id: 'cap1', type: 'e', position: { x: 1400, y: -80 }, data: {
+        label: '2200\u00B5F Cap', sublabel: 'Servo rail bulk filter', icon: '\u2ADE',
+        specs: ['10V rated electrolytic', 'Close to buck output', 'Absorbs servo inrush'],
+        color: 'cap',
+        handles: [
+          { type: 'target', position: 'Left', id: 'v+', htype: 'power' },
+          { type: 'target', position: 'Bottom', id: 'gnd', htype: 'gnd' },
+          { type: 'source', position: 'Right', id: 'vout', htype: 'power' },
+        ],
+      }},
+
+      // ───── DECOUPLING CAP (ESP) ─────
+      { id: 'cap2', type: 'e', position: { x: 1400, y: 130 }, data: {
+        label: '100\u00B5F Cap', sublabel: 'ESP power filter', icon: '\u2ADE',
+        specs: ['10V rated', 'Near ESP VIN pin', 'Filters servo noise'],
+        color: 'cap',
+        handles: [
+          { type: 'target', position: 'Left', id: 'v+', htype: 'power' },
+          { type: 'target', position: 'Bottom', id: 'gnd', htype: 'gnd' },
+          { type: 'source', position: 'Right', id: 'vout', htype: 'power' },
+        ],
+      }},
+
+      // ───── SERVO POWER RAIL ─────
+      { id: 'srail', type: 'e', position: { x: 1650, y: -80 }, data: {
+        label: '6V Servo Rail', sublabel: 'Power distribution bus', icon: '\u2501',
+        specs: ['18AWG red/black wire', 'Daisy-chained to all 8 servos', '6V + GND to each MG995'],
+        color: 'servo', wide: true,
+        handles: [
+          { type: 'target', position: 'Left', id: 'v+', htype: 'power', style: { top: '35%' } },
+          { type: 'source', position: 'Right', id: 'r-pwr', htype: 'power', style: { top: '35%' } },
+          { type: 'source', position: 'Right', id: 'l-pwr', htype: 'power', style: { top: '65%' } },
+          { type: 'source', position: 'Bottom', id: 'gnd', htype: 'gnd' },
+        ],
+      }},
+
+      // ───── ESP32-S3 ─────
+      { id: 'esp', type: 'e', position: { x: 1650, y: 120 }, data: {
+        label: 'ESP32-S3', sublabel: 'Main Controller (WROOM-1)', icon: '\uD83E\uDDE0',
+        specs: [
+          'VIN: 5V from buck',
+          'Onboard AMS1117 \u2192 3.3V',
+          'GPIO \u2192 8 servo signals',
+          'I2C \u2192 OLED display',
+          'WiFi for RL commands',
+          '~10g',
+        ],
+        color: 'mcu', wide: true,
+        handles: [
+          { type: 'target', position: 'Left', id: 'vin', htype: 'power', style: { top: '20%' } },
+          { type: 'target', position: 'Left', id: 'gnd', htype: 'gnd', style: { top: '40%' } },
+          { type: 'source', position: 'Right', id: 'sig-r', htype: 'signal', style: { top: '20%' } },
+          { type: 'source', position: 'Right', id: 'sig-l', htype: 'signal', style: { top: '40%' } },
+          { type: 'source', position: 'Right', id: 'i2c', htype: 'signal', style: { top: '60%' } },
+          { type: 'source', position: 'Right', id: 'oled-3v3', htype: 'power', style: { top: '80%' } },
+        ],
+      }},
+
+      // ───── RIGHT SERVOS ─────
+      { id: 'sr', type: 'e', position: { x: 1990, y: -100 }, data: {
+        label: 'Right Servos', sublabel: '4\u00D7 MG995', icon: '\u2699\uFE0F',
+        specs: [
+          'R1 Hip  \u2190 GPIO 4',
+          'R2 Hip  \u2190 GPIO 5',
+          'R3 Foot \u2190 GPIO 6',
+          'R4 Foot \u2190 GPIO 7',
+          '\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500',
+          'Red wire \u2192 6V rail',
+          'Brown wire \u2192 GND rail',
+          'Orange wire \u2192 GPIO',
+        ],
+        color: 'servo', wide: true,
+        handles: [
+          { type: 'target', position: 'Left', id: 'pwr', htype: 'power', style: { top: '25%' } },
+          { type: 'target', position: 'Left', id: 'sig', htype: 'signal', style: { top: '50%' } },
+          { type: 'target', position: 'Left', id: 'gnd', htype: 'gnd', style: { top: '75%' } },
+        ],
+      }},
+
+      // ───── LEFT SERVOS ─────
+      { id: 'sl', type: 'e', position: { x: 1990, y: 100 }, data: {
+        label: 'Left Servos', sublabel: '4\u00D7 MG995', icon: '\u2699\uFE0F',
+        specs: [
+          'L1 Hip  \u2190 GPIO 15',
+          'L2 Hip  \u2190 GPIO 16',
+          'L3 Foot \u2190 GPIO 17',
+          'L4 Foot \u2190 GPIO 18',
+          '\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500',
+          'Red wire \u2192 6V rail',
+          'Brown wire \u2192 GND rail',
+          'Orange wire \u2192 GPIO',
+        ],
+        color: 'servo', wide: true,
+        handles: [
+          { type: 'target', position: 'Left', id: 'pwr', htype: 'power', style: { top: '25%' } },
+          { type: 'target', position: 'Left', id: 'sig', htype: 'signal', style: { top: '50%' } },
+          { type: 'target', position: 'Left', id: 'gnd', htype: 'gnd', style: { top: '75%' } },
+        ],
+      }},
+
+      // ───── OLED ─────
+      { id: 'oled', type: 'e', position: { x: 1990, y: 300 }, data: {
+        label: 'SSD1306 OLED', sublabel: '0.96" 128\u00D764 Display', icon: '\uD83D\uDDA5\uFE0F',
+        specs: [
+          'VCC: 3.3V from ESP',
+          'GND: ESP GND',
+          'SDA: GPIO 21',
+          'SCL: GPIO 22',
+        ],
+        color: 'peripheral',
+        handles: [
+          { type: 'target', position: 'Left', id: 'v+', htype: 'power', style: { top: '25%' } },
+          { type: 'target', position: 'Left', id: 'sig', htype: 'signal', style: { top: '55%' } },
+          { type: 'target', position: 'Left', id: 'gnd', htype: 'gnd', style: { top: '85%' } },
+        ],
+      }},
+
+      // ───── STAR GROUND ─────
+      { id: 'gnd', type: 'e', position: { x: 850, y: 430 }, data: {
+        label: 'STAR GROUND', sublabel: 'Single tie point for all GND', icon: '\u23DA',
+        specs: [
+          'All GND lines meet here',
+          '20AWG wire',
+          'Prevents ground loops',
+          'Servo noise stays on servo side',
+        ],
+        color: 'gnd', wide: true,
+        handles: [
+          { type: 'target', position: 'Top', id: 'from-sw', htype: 'gnd', style: { left: '20%' } },
+          { type: 'target', position: 'Top', id: 'from-buck6', htype: 'gnd', style: { left: '40%' } },
+          { type: 'target', position: 'Top', id: 'from-buck5', htype: 'gnd', style: { left: '60%' } },
+          { type: 'target', position: 'Top', id: 'from-srail', htype: 'gnd', style: { left: '80%' } },
+          { type: 'target', position: 'Right', id: 'from-esp', htype: 'gnd' },
+        ],
+      }},
+
+      // ───── LEGEND ─────
+      { id: 'legend', type: 'e', position: { x: 0, y: 400 }, data: {
+        label: 'WIRING LEGEND', sublabel: 'Sesame 1.8x \u2014 ESP32 + 4S 18650', icon: '\uD83D\uDCCB',
+        specs: [
+          '\u2500\u2500\u2500 RED solid = Power V+ (18AWG)',
+          '- - - BLUE dashed = Signal (28AWG)',
+          '- - - GRAY dashed = Ground (20AWG)',
+          '\u2500\u2500\u2500 CYAN solid = Charge path',
+          '',
+          '\uD83D\uDD34 Red handle = Power connection',
+          '\uD83D\uDD35 Blue handle = Signal connection',
+          '\u26AA Gray handle = Ground connection',
+          '',
+          'Battery: 4S \u2022 14.8V \u2022 51.8Wh',
+          'Total weight: ~970g (no Pi/PCA)',
+          'Runtime: ~1h30m walking',
+        ],
+        color: 'legend', wide: true,
+        handles: [],
+      }},
+    ];
+
+    // ════════════════════════════════════════
+    //  EDGES - Every single wire
+    // ════════════════════════════════════════
+
+    function pwr(id, src, tgt, sh, th, opts) {
+      opts = opts || {};
+      return {
+        id: id, source: src, target: tgt, sourceHandle: sh, targetHandle: th,
+        type: 'smoothstep', animated: true,
+        style: { stroke: opts.color || '#ef4444', strokeWidth: opts.w || 2.5 },
+        markerEnd: { type: MarkerType.ArrowClosed, color: opts.color || '#ef4444', width: 14, height: 14 },
+        label: opts.label, labelBgPadding: [6, 3],
+        labelStyle: { fill: '#d4d4d4', fontSize: 9, fontFamily: 'monospace', fontWeight: 600 },
+        labelBgStyle: { fill: '#0a0a0f', fillOpacity: 0.95 },
+      };
+    }
+
+    function sig(id, src, tgt, sh, th, opts) {
+      opts = opts || {};
+      return {
+        id: id, source: src, target: tgt, sourceHandle: sh, targetHandle: th,
+        type: 'smoothstep', animated: false,
+        style: { stroke: '#3b82f6', strokeWidth: 1.8, strokeDasharray: '7 4' },
+        markerEnd: { type: MarkerType.ArrowClosed, color: '#3b82f6', width: 12, height: 12 },
+        label: opts.label, labelBgPadding: [6, 3],
+        labelStyle: { fill: '#93c5fd', fontSize: 9, fontFamily: 'monospace' },
+        labelBgStyle: { fill: '#0a0a0f', fillOpacity: 0.95 },
+      };
+    }
+
+    function gnd(id, src, tgt, sh, th, opts) {
+      opts = opts || {};
+      return {
+        id: id, source: src, target: tgt, sourceHandle: sh, targetHandle: th,
+        type: 'smoothstep', animated: false,
+        style: { stroke: '#737373', strokeWidth: 1.5, strokeDasharray: '4 3' },
+        markerEnd: { type: MarkerType.ArrowClosed, color: '#737373', width: 10, height: 10 },
+        label: opts.label, labelBgPadding: [6, 3],
+        labelStyle: { fill: '#a3a3a3', fontSize: 8, fontFamily: 'monospace' },
+        labelBgStyle: { fill: '#0a0a0f', fillOpacity: 0.95 },
+      };
+    }
+
+    var edges = [
+
+      // ══════ POWER (V+) ══════
+
+      // Battery series: C1→C2, C3→C4
+      pwr('p-c1c2', 'c1', 'c2', 'v+', 'v-in', { label: 'Series 7.4V' }),
+      pwr('p-c3c4', 'c3', 'c4', 'v+', 'v-in', { label: 'Series 7.4V' }),
+
+      // Battery pairs to BMS
+      pwr('p-c2bms', 'c2', 'bms', 'v+', 'bat-a', { label: 'Pair A' }),
+      pwr('p-c4bms', 'c4', 'bms', 'v+', 'bat-b', { label: 'Pair B' }),
+
+      // USB-C charger → BMS
+      pwr('p-usbc', 'usbc', 'bms', 'v+', 'chrg-in', { color: '#0ea5e9', label: '16.8V CC/CV' }),
+
+      // BMS → Switch
+      pwr('p-bms-sw', 'bms', 'sw', 'out+', 'in+', { label: '14.8V' }),
+
+      // Switch → Buck converters
+      pwr('p-sw-b6', 'sw', 'buck6', 'p1', 'vin', { label: 'Pole 1' }),
+      pwr('p-sw-b5', 'sw', 'buck5', 'p2', 'vin', { label: 'Pole 2' }),
+
+      // 6V buck → Cap → Servo rail
+      pwr('p-b6-cap', 'buck6', 'cap1', 'vout', 'v+', { label: '6V out' }),
+      pwr('p-cap-sr', 'cap1', 'srail', 'vout', 'v+', { label: '6V filtered' }),
+
+      // Servo rail → servo banks (power)
+      pwr('p-sr-r', 'srail', 'sr', 'r-pwr', 'pwr', { label: '6V (red wire)' }),
+      pwr('p-sr-l', 'srail', 'sl', 'l-pwr', 'pwr', { label: '6V (red wire)' }),
+
+      // 5V buck → Cap → ESP
+      pwr('p-b5-cap', 'buck5', 'cap2', 'vout', 'v+', { label: '5V out' }),
+      pwr('p-cap-esp', 'cap2', 'esp', 'vout', 'vin', { label: '5V to VIN' }),
+
+      // ESP 3.3V → OLED
+      pwr('p-esp-oled', 'esp', 'oled', 'oled-3v3', 'v+', { label: '3.3V', w: 1.5 }),
+
+
+      // ══════ SIGNAL ══════
+
+      // ESP GPIO → Right servos (signal wires)
+      sig('s-esp-r', 'esp', 'sr', 'sig-r', 'sig', { label: 'GPIO 4,5,6,7' }),
+
+      // ESP GPIO → Left servos (signal wires)
+      sig('s-esp-l', 'esp', 'sl', 'sig-l', 'sig', { label: 'GPIO 15,16,17,18' }),
+
+      // ESP I2C → OLED
+      sig('s-esp-oled', 'esp', 'oled', 'i2c', 'sig', { label: 'I2C SDA/SCL' }),
+
+
+      // ══════ GROUND ══════
+
+      // Battery GND to BMS
+      gnd('g-c1', 'c1', 'bms', 'gnd', 'bat-gnd', { label: 'BAT GND' }),
+
+      // USB-C GND to BMS
+      gnd('g-usbc', 'usbc', 'bms', 'gnd', 'chrg-gnd', { label: 'CHG GND' }),
+
+      // BMS GND out → Switch GND
+      gnd('g-bms-sw', 'bms', 'sw', 'out-', 'in-', { label: 'System GND' }),
+
+      // Switch GND → Star ground
+      gnd('g-sw-star', 'sw', 'gnd', 'gnd-out', 'from-sw', { label: 'GND bus' }),
+
+      // 6V buck GND → Star ground
+      gnd('g-b6', 'buck6', 'gnd', 'gnd-out', 'from-buck6', { label: '6V return' }),
+
+      // 5V buck GND → Star ground
+      gnd('g-b5', 'buck5', 'gnd', 'gnd-out', 'from-buck5', { label: '5V return' }),
+
+      // Servo rail GND → Star ground
+      gnd('g-srail', 'srail', 'gnd', 'gnd', 'from-srail', { label: 'Servo GND' }),
+
+      // Servo rail GND → Right servos (brown wire)
+      gnd('g-sr-r', 'srail', 'sr', 'gnd', 'gnd', { label: 'GND (brown)' }),
+
+      // Servo rail GND → Left servos (brown wire)
+      gnd('g-sr-l', 'srail', 'sl', 'gnd', 'gnd', { label: 'GND (brown)' }),
+
+      // ESP GND → Star ground
+      gnd('g-esp', 'esp', 'gnd', 'gnd', 'from-esp', { label: 'ESP GND' }),
+
+      // OLED GND (shares ESP GND path)
+      gnd('g-oled', 'esp', 'oled', 'gnd', 'gnd', { label: 'GND' }),
+    ];
+
+
+    // ── App ──
+    function App() {
+      var ns = useNodesState(nodes);
+      var es = useEdgesState(edges);
+
+      return h(ReactFlowComponent, {
+        nodes: ns[0], edges: es[0],
+        onNodesChange: ns[2], onEdgesChange: es[2],
+        nodeTypes: nodeTypes,
+        fitView: true,
+        fitViewOptions: { padding: 0.15 },
+        minZoom: 0.15, maxZoom: 2.5,
+        defaultEdgeOptions: { type: 'smoothstep' },
+        style: { background: '#0a0a0f' },
+      },
+        h(Background, { color: '#1a1a2e', gap: 24, size: 1 }),
+        h(Controls, null)
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(h(App));
+  </script>
+</body>
+</html>

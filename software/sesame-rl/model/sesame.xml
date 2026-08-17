@@ -1,0 +1,173 @@
+<mujoco model="sesame-1.8x">
+  <!--
+    Sesame Robot - 1.8x scale with MG995 servos
+    Geometry extracted from Sesame-v100.step assembly file.
+
+    Spider/crab stance: legs extend diagonally outward from body corners.
+    Standing height: ~85mm, stance: 165mm wide x 200mm long.
+
+    Leg mapping:
+      Front-right: R1 (hip) → R3 (knee)
+      Front-left:  L1 (hip) → L3 (knee)
+      Rear-right:  R2 (hip) → R4 (knee)
+      Rear-left:   L2 (hip) → L4 (knee)
+
+    Joint order in qpos/actuators (kinematic tree order):
+      [0] fr_hip   (R1)    [1] fr_ankle (R3)
+      [2] fl_hip   (L1)    [3] fl_ankle (L3)
+      [4] rr_hip   (R2)    [5] rr_ankle (R4)
+      [6] rl_hip   (L2)    [7] rl_ankle (L4)
+
+    Coordinate system: X=forward, Y=left, Z=up
+  -->
+
+  <compiler angle="degree" coordinate="local" autolimits="true" meshdir="meshes"/>
+
+  <option timestep="0.002" gravity="0 0 -9.81">
+    <flag warmstart="enable"/>
+  </option>
+
+  <default>
+    <joint limited="true" armature="0.01" damping="0.4" frictionloss="0.05"/>
+    <geom condim="3" friction="0.8 0.005 0.001" margin="0.001"/>
+    <position forcelimited="true" forcerange="-1.3 1.3" kp="3.0" ctrllimited="true"/>
+    <site type="sphere" size="0.012" rgba="1 0.5 0 0.5"/>
+  </default>
+
+  <asset>
+    <texture type="2d" name="grid" builtin="checker" width="512" height="512"
+             rgb1="0.15 0.2 0.25" rgb2="0.25 0.3 0.35"/>
+    <material name="grid" texture="grid" texrepeat="8 8" reflectance="0.15"/>
+    <texture type="skybox" name="sky" builtin="gradient" width="512" height="512"
+             rgb1="0.4 0.6 0.8" rgb2="0.05 0.1 0.2"/>
+
+    <!-- Robot part meshes (transformed from STEP assembly to MuJoCo body-local coords) -->
+    <mesh name="body_mesh" file="body.stl"/>
+    <mesh name="fr_upper_mesh" file="fr_upper.stl"/>
+    <mesh name="fl_upper_mesh" file="fl_upper.stl"/>
+    <mesh name="rr_upper_mesh" file="rr_upper.stl"/>
+    <mesh name="rl_upper_mesh" file="rl_upper.stl"/>
+    <mesh name="fr_lower_mesh" file="fr_lower.stl"/>
+    <mesh name="fl_lower_mesh" file="fl_lower.stl"/>
+    <mesh name="rr_lower_mesh" file="rr_lower.stl"/>
+    <mesh name="rl_lower_mesh" file="rl_lower.stl"/>
+  </asset>
+
+  <visual>
+    <headlight diffuse="0.6 0.6 0.6" ambient="0.3 0.3 0.3" specular="0.1 0.1 0.1"/>
+    <global azimuth="150" elevation="-25"/>
+  </visual>
+
+  <worldbody>
+    <light diffuse="0.8 0.8 0.8" pos="0 0 3" dir="0 0 -1" castshadow="true"/>
+    <light diffuse="0.3 0.3 0.3" pos="1 -1 2" dir="-0.3 0.3 -1"/>
+
+    <!-- Ground plane -->
+    <geom type="plane" size="50 50 0.1" material="grid" conaffinity="1" condim="3"/>
+
+    <!-- ==================== TORSO ==================== -->
+    <!--
+      Body center height: 95mm (85mm from STEP + 10mm capsule radius offset)
+      Body box: 130mm x 110mm x 44mm (includes servo volume)
+    -->
+    <body name="torso" pos="0 0 0.095">
+      <freejoint name="root"/>
+      <geom name="torso_geom" type="mesh" mesh="body_mesh"
+            mass="0.5" rgba="0.85 0.55 0.15 1"/>
+
+      <!-- Front indicator -->
+      <geom name="nose" type="sphere" size="0.012" pos="0.065 0 0.025"
+            rgba="0.9 0.2 0.2 1" mass="0.001" contype="0" conaffinity="0"/>
+
+      <!-- Cameras -->
+      <camera name="tracking" pos="0.4 -0.4 0.3" xyaxes="1 1 0 -0.2 0.2 1" mode="trackcom"/>
+      <camera name="side" pos="0 -0.5 0.15" xyaxes="1 0 0 0 0.3 1" mode="trackcom"/>
+      <camera name="top" pos="0 0 0.8" xyaxes="1 0 0 0 1 0" mode="trackcom"/>
+      <camera name="front" pos="0.5 0 0.1" xyaxes="0 -1 0 0 0 1" mode="trackcom"/>
+
+      <!-- ========== FRONT RIGHT LEG: R1 (hip) → R3 (knee) ========== -->
+      <!--
+        Hip at body corner: forward +35mm, right -45mm, up +2mm
+        Upper leg: forward 66mm, outward 37mm, down 12mm (length 77mm)
+        Lower leg: straight down 75mm
+      -->
+      <!-- ========== FRONT RIGHT LEG: R1 (hip) → R3 (knee) ========== -->
+      <body name="fr_upper" pos="0.035 -0.045 0.002">
+        <joint name="fr_hip" type="hinge" axis="0 0 1" range="-60 60" damping="0.5"/>
+        <geom name="fr_upper_geom" type="mesh" mesh="fr_upper_mesh"
+              mass="0.07" rgba="0.85 0.55 0.15 1"/>
+        <body name="fr_lower" pos="0.066 -0.037 -0.012">
+          <joint name="fr_ankle" type="hinge" axis="0 1 0" range="-60 60" damping="0.3"/>
+          <geom name="fr_lower_geom" type="mesh" mesh="fr_lower_mesh"
+                mass="0.04" rgba="0.85 0.55 0.15 1"/>
+          <site name="fr_foot" pos="0 0 -0.075"/>
+        </body>
+      </body>
+
+      <!-- ========== FRONT LEFT LEG: L1 (hip) → L3 (knee) ========== -->
+      <body name="fl_upper" pos="0.035 0.046 0.002">
+        <joint name="fl_hip" type="hinge" axis="0 0 1" range="-60 60" damping="0.5"/>
+        <geom name="fl_upper_geom" type="mesh" mesh="fl_upper_mesh"
+              mass="0.07" rgba="0.85 0.55 0.15 1"/>
+        <body name="fl_lower" pos="0.066 0.037 -0.012">
+          <joint name="fl_ankle" type="hinge" axis="0 1 0" range="-60 60" damping="0.3"/>
+          <geom name="fl_lower_geom" type="mesh" mesh="fl_lower_mesh"
+                mass="0.04" rgba="0.85 0.55 0.15 1"/>
+          <site name="fl_foot" pos="0 0 -0.075"/>
+        </body>
+      </body>
+
+      <!-- ========== REAR RIGHT LEG: R2 (hip) → R4 (knee) ========== -->
+      <body name="rr_upper" pos="-0.033 -0.045 0.002">
+        <joint name="rr_hip" type="hinge" axis="0 0 1" range="-60 60" damping="0.5"/>
+        <geom name="rr_upper_geom" type="mesh" mesh="rr_upper_mesh"
+              mass="0.07" rgba="0.85 0.55 0.15 1"/>
+        <body name="rr_lower" pos="-0.066 -0.037 -0.012">
+          <joint name="rr_ankle" type="hinge" axis="0 1 0" range="-60 60" damping="0.3"/>
+          <geom name="rr_lower_geom" type="mesh" mesh="rr_lower_mesh"
+                mass="0.04" rgba="0.85 0.55 0.15 1"/>
+          <site name="rr_foot" pos="0 0 -0.075"/>
+        </body>
+      </body>
+
+      <!-- ========== REAR LEFT LEG: L2 (hip) → L4 (knee) ========== -->
+      <body name="rl_upper" pos="-0.033 0.046 0.002">
+        <joint name="rl_hip" type="hinge" axis="0 0 1" range="-60 60" damping="0.5"/>
+        <geom name="rl_upper_geom" type="mesh" mesh="rl_upper_mesh"
+              mass="0.07" rgba="0.85 0.55 0.15 1"/>
+        <body name="rl_lower" pos="-0.066 0.037 -0.012">
+          <joint name="rl_ankle" type="hinge" axis="0 1 0" range="-60 60" damping="0.3"/>
+          <geom name="rl_lower_geom" type="mesh" mesh="rl_lower_mesh"
+                mass="0.04" rgba="0.85 0.55 0.15 1"/>
+          <site name="rl_foot" pos="0 0 -0.075"/>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+
+  <sensor>
+    <touch name="fr_touch" site="fr_foot"/>
+    <touch name="fl_touch" site="fl_foot"/>
+    <touch name="rr_touch" site="rr_foot"/>
+    <touch name="rl_touch" site="rl_foot"/>
+  </sensor>
+
+  <!--
+    Actuators in kinematic tree order.
+    ctrlrange in radians (not affected by angle="degree").
+  -->
+  <actuator>
+    <position name="fr_hip_ctrl"    joint="fr_hip"    ctrlrange="-1.047 1.047"/>
+    <position name="fr_ankle_ctrl"  joint="fr_ankle"  ctrlrange="-1.047 1.047"/>
+    <position name="fl_hip_ctrl"    joint="fl_hip"    ctrlrange="-1.047 1.047"/>
+    <position name="fl_ankle_ctrl"  joint="fl_ankle"  ctrlrange="-1.047 1.047"/>
+    <position name="rr_hip_ctrl"    joint="rr_hip"    ctrlrange="-1.047 1.047"/>
+    <position name="rr_ankle_ctrl"  joint="rr_ankle"  ctrlrange="-1.047 1.047"/>
+    <position name="rl_hip_ctrl"    joint="rl_hip"    ctrlrange="-1.047 1.047"/>
+    <position name="rl_ankle_ctrl"  joint="rl_ankle"  ctrlrange="-1.047 1.047"/>
+  </actuator>
+
+  <keyframe>
+    <key name="home" qpos="0 0 0.095 1 0 0 0  0 0 0 0 0 0 0 0"/>
+  </keyframe>
+</mujoco>
